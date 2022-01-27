@@ -9,8 +9,6 @@ $(function() {
         var self = this;
 
         self.settingsViewModel = parameters[0];
-
-        // TODO: Implement your plugin's view model here.
     }
 
     OCTOPRINT_VIEWMODELS.push({

@@ -18,22 +18,23 @@ class TimelapsepurgerPlugin(octoprint.plugin.SettingsPlugin,
         pass
 
     def on_event(self, event, payload):
-        if event == Events.MOVIE_DONE or event == Events.STARTUP:
-            self._logger.debug("Purging timelapses older than {} days.".format(self._settings.get(["cut_off_length"])))
-            path = self._settings.getBaseFolder("timelapse")
-            now = time.time()
-            for file in os.listdir(path):
-                file = os.path.join(path, file)
-                if os.stat(file).st_mtime < now - self._settings.get_int(["cut_off_length"]) * 86400:
-                    if os.path.isfile(file):
-                        self._logger.debug("Deleting {}.".format(file))
-                        os.remove(file)
+        if self._settings.get_int(["cut_off_length"]) > 0:
+            if event == Events.MOVIE_DONE or event == Events.STARTUP:
+                self._logger.debug("Purging timelapses older than {} days.".format(self._settings.get(["cut_off_length"])))
+                path = self._settings.getBaseFolder("timelapse")
+                now = time.time()
+                for file in os.listdir(path):
+                    file = os.path.join(path, file)
+                    if os.stat(file).st_mtime < now - self._settings.get_int(["cut_off_length"]) * 86400:
+                        if os.path.isfile(file):
+                            self._logger.debug("Deleting {}.".format(file))
+                            os.remove(file)
 
     # ~~ SettingsPlugin mixin
 
     def get_settings_defaults(self):
         return {
-            "cut_off_length": 7
+            "cut_off_length": 0
         }
 
     # ~~ AssetPlugin mixin
@@ -42,6 +43,11 @@ class TimelapsepurgerPlugin(octoprint.plugin.SettingsPlugin,
         return {
             "js": ["js/timelapsepurger.js"]
         }
+
+    # ~~ TemplatePlugin mixin
+
+    def get_template_vars(self):
+        return {"plugin_version": self._plugin_version}
 
     # ~~ Softwareupdate hook
 
