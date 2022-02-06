@@ -18,8 +18,8 @@ class TimelapsepurgerPlugin(octoprint.plugin.SettingsPlugin,
         pass
 
     def on_event(self, event, payload):
-        if self._settings.get_int(["cut_off_length"]) > 0:
-            if event == Events.MOVIE_DONE or event == Events.STARTUP:
+        if event == Events.MOVIE_DONE or event == Events.STARTUP:
+            if self._settings.get_int(["cut_off_length"]) > 0:
                 self._logger.debug("Purging timelapses older than {} days.".format(self._settings.get(["cut_off_length"])))
                 path = self._settings.getBaseFolder("timelapse")
                 now = time.time()
@@ -28,7 +28,10 @@ class TimelapsepurgerPlugin(octoprint.plugin.SettingsPlugin,
                     if os.stat(file).st_mtime < now - self._settings.get_int(["cut_off_length"]) * 86400:
                         if os.path.isfile(file):
                             self._logger.debug("Deleting {}.".format(file))
-                            os.remove(file)
+                            try:
+                                os.remove(file)
+                            except Exception:
+                                self._logger.error("There was an error removing the file {}".format(file))
 
     # ~~ SettingsPlugin mixin
 
