@@ -11,14 +11,19 @@ import time
 class TimelapsepurgerPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
                             octoprint.plugin.TemplatePlugin,
-                            octoprint.plugin.EventHandlerPlugin
+                            octoprint.plugin.EventHandlerPlugin,
+                            octoprint.plugin.StartupPlugin
                             ):
 
     def __init__(self):
-        pass
+        self.monitored_events = [Events.MOVIE_DONE, Events.STARTUP]
+
+    def on_after_startup(self):
+        if Events.PLUGIN_OCTOLAPSE_MOVIE_DONE:
+            self.monitored_events.append(Events.PLUGIN_OCTOLAPSE_MOVIE_DONE)
 
     def on_event(self, event, payload):
-        if event == Events.MOVIE_DONE or event == Events.STARTUP:
+        if event in self.monitored_events:
             if self._settings.get_int(["cut_off_length"]) > 0:
                 self._logger.debug("Purging timelapses older than {} days.".format(self._settings.get(["cut_off_length"])))
                 path = self._settings.getBaseFolder("timelapse")
