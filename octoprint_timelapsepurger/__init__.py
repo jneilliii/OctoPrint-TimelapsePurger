@@ -19,7 +19,7 @@ class TimelapsepurgerPlugin(octoprint.plugin.SettingsPlugin,
         self.monitored_events = [Events.MOVIE_DONE, Events.STARTUP]
 
     def on_after_startup(self):
-        if Events.PLUGIN_OCTOLAPSE_MOVIE_DONE:
+        if hasattr(Events, "PLUGIN_OCTOLAPSE_MOVIE_DONE"):
             self.monitored_events.append(Events.PLUGIN_OCTOLAPSE_MOVIE_DONE)
 
     def on_event(self, event, payload):
